@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">Contacts</string>
+    <string name="action_settings">Settings</string>
+
+    <string-array name="relationship">
+
+        <item>Select Relationship</item>
+
+        <item>Family</item>
+        <item>Friends</item>
+        <item>Co-worker</item>
+        <item>Classmate</item>
+        <item>Boss</item>
+
+    </string-array>
+
+    <string-array name="fields">
+        <item>Postal Address</item>
+        <item>Birthday</item>
+        <item>Relationship</item>
+    </string-array>
+
+    <string-array name="modify">
+        <item>Edit</item>
+        <item>Delete</item>
+    </string-array>
+    <string name="title_activity_details">DetailsActivity</string>
+    <string name="title_activity_search">SearchActivity</string>
+</resources>
