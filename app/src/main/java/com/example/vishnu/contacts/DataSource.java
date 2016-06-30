@@ -31,7 +31,8 @@ public class DataSource {
             DBOpenHelper.EMAIL_COLUMN,
             DBOpenHelper.ADDRESS_COLUMN,
             DBOpenHelper.BIRTHDAY_COLUMN,
-            DBOpenHelper.RELATIONSHIP_COLUMN
+            DBOpenHelper.RELATIONSHIP_COLUMN,
+            DBOpenHelper.URI_COLUMN
     };
 
     /*initialize dbhelper*/
@@ -60,6 +61,7 @@ public class DataSource {
         values.put(DBOpenHelper.ADDRESS_COLUMN, contact.getAddress());
         values.put(DBOpenHelper.BIRTHDAY_COLUMN, contact.getBirthday());
         values.put(DBOpenHelper.RELATIONSHIP_COLUMN, contact.getRelationship());
+        values.put(DBOpenHelper.URI_COLUMN, contact.getUri());
 
         /*ID is primary key, autoincrement. insertID now gets the value of ID Column*/
         long insertID = database.insert(DBOpenHelper.TABLE_NAME, null, values);
@@ -82,6 +84,7 @@ public class DataSource {
         values.put(DBOpenHelper.ADDRESS_COLUMN, contact.getAddress());
         values.put(DBOpenHelper.BIRTHDAY_COLUMN, contact.getBirthday());
         values.put(DBOpenHelper.RELATIONSHIP_COLUMN, contact.getRelationship());
+        values.put(DBOpenHelper.URI_COLUMN, contact.getUri());
 
         int updateID = database.update(
                 DBOpenHelper.TABLE_NAME,
@@ -165,7 +168,9 @@ public class DataSource {
                                 cursor.getString(cursor.getColumnIndex(DBOpenHelper.EMAIL_COLUMN)),
                                 cursor.getString(cursor.getColumnIndex(DBOpenHelper.ADDRESS_COLUMN)),
                                 cursor.getString(cursor.getColumnIndex(DBOpenHelper.BIRTHDAY_COLUMN)),
-                                cursor.getString(cursor.getColumnIndex(DBOpenHelper.RELATIONSHIP_COLUMN))
+                                cursor.getString(cursor.getColumnIndex(DBOpenHelper.RELATIONSHIP_COLUMN)),
+                                cursor.getString(cursor.getColumnIndex(DBOpenHelper.URI_COLUMN))
+
                         )
                 );
             }

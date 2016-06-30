@@ -1,6 +1,7 @@
 package com.example.vishnu.contacts;
 
 import android.database.Cursor;
+import android.net.Uri;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ public class Contact {
     private String birthday = null;
     private String relationship = null;
     private long id;
+    private Uri uri = null;
 
     public Contact(){}
 
@@ -46,6 +48,22 @@ public class Contact {
         this.relationship = relationship;
     }
 
+    public Contact(long id, String name, String phoneNo, String emailID,
+                   String address, String birthday, String relationship, String uri){
+        this.id = id;
+        this.name = name;
+        this.phoneNo = phoneNo;
+        this.emailID = emailID;
+        this.address = address;
+        this.birthday = birthday;
+        this.relationship = relationship;
+
+        if(uri==null)
+            this.uri=null;
+        else
+            this.uri = Uri.parse(uri);
+    }
+
     public boolean hasPhoneNo(){
         return (phoneNo==null || phoneNo==""||phoneNo.length()==0)?false:true;
     }
@@ -64,6 +82,10 @@ public class Contact {
 
     public boolean hasRelationship(){
         return (relationship==null || relationship=="" ||relationship.length()==0)?false:true;
+    }
+
+    public boolean hasUri(){
+        return (uri==null)?false:true;
     }
 
     public String getName() {
@@ -140,5 +162,17 @@ public class Contact {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public void setUri(String uri){
+        if(uri==null)
+            uri=null;
+        else
+            this.uri=Uri.parse(uri);
+    }
+
+    public String getUri(){
+
+        return hasUri()?uri.toString():null;
     }
 }

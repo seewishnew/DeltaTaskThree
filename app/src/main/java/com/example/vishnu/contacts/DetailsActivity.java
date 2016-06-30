@@ -1,10 +1,16 @@
 package com.example.vishnu.contacts;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.Toolbar;
@@ -12,15 +18,19 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
+
 public class DetailsActivity extends AppCompatActivity {
 
     public static final String LOG_TAG = "DetailsActivity";
+    public static final int PICK_IMAGE_REQUEST = 5;
     Contact contact;
 
     DataSource dataSource;
@@ -59,18 +69,77 @@ public class DetailsActivity extends AppCompatActivity {
 
         imageView = (ImageView) findViewById(R.id.imageView);
         imageView.getLayoutParams().height = (int) (heightPixels *0.5);
+        imageView.setLongClickable(true);
+        imageView.setClickable(true);
 
-        int resID = getResources().getIdentifier(
-                "image_" + contact.getPhoneNo(),
-                "drawable",
-                this.getPackageName());
 
-        if(resID==0){
+        if(MainActivity.profileEditable) {
+            Log.d(LOG_TAG, "Entering onLongClick");
+            imageView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+
+                    Log.d(LOG_TAG, "Inside onLongClick");
+
+                    final CharSequence items[] = {"Choose Photo", "Remove Photo", "Cancel"};
+                    AlertDialog.Builder builder = new AlertDialog.Builder(DetailsActivity.this);
+                    builder.setTitle("Choose Photo");
+                    builder.setItems(items,
+                            new DialogInterface.OnClickListener() {
+
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                    if (items[which].equals("Choose Photo")) {
+
+                                        Intent intent;
+
+                                        if(Build.VERSION.SDK_INT<19) {
+                                            intent = new Intent();
+                                            intent.setAction(Intent.ACTION_GET_CONTENT);
+                                        }
+
+                                        else{
+                                            intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                                            intent.addCategory(Intent.CATEGORY_OPENABLE);
+                                        }
+
+                                        intent.setType("image/*");
+
+                                        startActivityForResult(Intent.createChooser(intent, "Choose from"),
+                                                PICK_IMAGE_REQUEST);
+                                    } else if (items[which].equals("Remove Photo")) {
+                                        contact.setUri(null);
+                                        dataSource.update(contact);
+                                    } else {
+                                        dialog.dismiss();
+                                    }
+                                }
+                            });
+
+                    builder.show();
+
+                    return false;
+                }
+            });
+        }
+        if(!(contact.hasUri() && MainActivity.profileEditable)){
             imageView.setImageResource(R.mipmap.ic_contact_default);
         }
 
-        else
-            imageView.setImageResource(resID);
+        else {
+            Bitmap bitmap = null;
+            try {
+
+                bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(),
+                        Uri.parse(contact.getUri()));
+                imageView.setImageBitmap(bitmap);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
 
         if(contact.hasPhoneNo())
         {
@@ -107,6 +176,14 @@ public class DetailsActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        getMenuInflater().inflate(R.menu.menu_details_options, menu);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
         Log.d(LOG_TAG, "In onOptionsItemSelected");
@@ -119,6 +196,39 @@ public class DetailsActivity extends AppCompatActivity {
                     finish();
                     return true;
             }
+                break;
+
+            case R.id.edit_menu_option:
+                Intent intent = new Intent(DetailsActivity.this, Main2Activity.class);
+                intent.putExtra(MainActivity.ID, contact.getId());
+                intent.putExtra(MainActivity.UPDATE, true);
+                startActivity(intent);
+
+                break;
+
+            case R.id.delete_menu_option:
+                new AlertDialog.Builder(this)
+                        .setTitle("Delete " + contact.getName()+"?")
+                        .setMessage("Are you sure you want to delete " +
+                                contact.getName() + "?")
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener(){
+
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dataSource.deleteContact(contact.getId());
+                                Log.d(LOG_TAG, "setting resultok");
+                                setResult(RESULT_OK);
+                                finish();
+                            }
+                        })
+                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
         }
 
         return super.onOptionsItemSelected(item);
@@ -132,6 +242,28 @@ public class DetailsActivity extends AppCompatActivity {
         {
             setResult(RESULT_OK);
             finish();
+        }
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK){
+            if(data!=null && data.getData()!=null){
+                Uri uri = data.getData();
+                contact.setUri(uri.toString());
+
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                    imageView.setImageBitmap(bitmap);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                dataSource.update(contact);
+            }
         }
     }
 }

@@ -1,9 +1,13 @@
 package com.example.vishnu.contacts;
 
+import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -33,6 +37,15 @@ public class MainActivity extends AppCompatActivity {
     public static final String PHONE_NO = "Phone no";
     public static final String QUERY = "Query";
     public static final String ID = "ID";
+    public static final int REQUEST_CODE_DETAILS = 4;
+    public static final int MY_MULTIPLE_PERMISSION_REQUEST = 6;
+    public static final int MY_REQUEST_CODE_MANAGE_DOCUMENTS = 7;
+
+    public static final String[] PERMISSIONS = {
+            Manifest.permission.READ_EXTERNAL_STORAGE
+    };
+
+    public static boolean profileEditable = true;
 
     ListView listView;
     DataSource dataSource;
@@ -55,6 +68,27 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        int permissionCheck1 = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_EXTERNAL_STORAGE);
+
+        //int permissionCheck2 = ContextCompat.checkSelfPermission(this,
+//                Manifest.permission.MANAGE_DOCUMENTS);
+
+        if(!(permissionCheck1 == PackageManager.PERMISSION_GRANTED)){
+
+            profileEditable=false;
+
+            ActivityCompat.requestPermissions(
+                    this,
+                    PERMISSIONS,
+                    MY_MULTIPLE_PERMISSION_REQUEST);
+
+        }
+
+        else
+            profileEditable=true;
+
 
         listView = (ListView) findViewById(R.id.listView);
         dataSource = new DataSource(this);
@@ -88,14 +122,54 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, DetailsActivity.class);
                 intent.putExtra(ID, contact.getId());
 
-                startActivity(intent);
+                startActivityForResult(intent, REQUEST_CODE_DETAILS);
 
             }
         });
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode){
+            case MY_MULTIPLE_PERMISSION_REQUEST:
+
+                if(grantResults.length>0
+                        && grantResults[0]==PackageManager.PERMISSION_GRANTED
+                        ){
+                    Log.d(LOG_TAG, "Multiple permissions granted!");
+                        profileEditable=true;
+
+                }
+
+                else{
+                    Log.d(LOG_TAG, "Multiple permisions not granted");
+                    profileEditable=false;
+                }
+                break;
+
+//            case MY_REQUEST_CODE_MANAGE_DOCUMENTS:
+//
+//                Log.d(LOG_TAG, "Inside ManageDocuments Permission");
+//
+//                if(grantResults.length>0
+//                        && grantResults[0]==PackageManager.PERMISSION_GRANTED){
+//
+//                    profileEditable=true;
+//
+//                }
+//
+//                else
+//                {
+//                    Log.d(LOG_TAG, "Permission denied");
+//                    profileEditable=false;
+//                }
+//
+//                break;
+        }
+    }
+
     /*This function is there basically to populate the menu that will pop up when an element of the
-    * listView is LongClicked.*/
+        * listView is LongClicked.*/
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
@@ -322,6 +396,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        Log.d(LOG_TAG, "Inside onActivityResult " + requestCode + ", " +
+                (resultCode==RESULT_OK));
+
         if(requestCode== REQUEST_CODE_ADD && resultCode == RESULT_OK)
         {
             long id = data.getLongExtra(Main2Activity.RESULT, -1);
@@ -340,6 +417,12 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
             else;
 
+            display();
+        }
+
+        else if(requestCode == REQUEST_CODE_DETAILS && resultCode==RESULT_OK){
+            Log.d(LOG_TAG, "I'm here");
+            Toast.makeText(this, "Deleted", Toast.LENGTH_SHORT).show();
             display();
         }
     }

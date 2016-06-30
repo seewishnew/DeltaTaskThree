@@ -21,7 +21,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/imageView"
-            android:layout_gravity="center_horizontal" />
+            android:layout_gravity="center_horizontal"
+            android:longClickable="true"
+            android:clickable="true"
+            />
 
         <TextView
             android:layout_width="wrap_content"

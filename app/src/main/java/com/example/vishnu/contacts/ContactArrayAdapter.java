@@ -1,6 +1,9 @@
 package com.example.vishnu.contacts;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -43,18 +47,20 @@ public class ContactArrayAdapter extends ArrayAdapter<Contact> {
             details.setText(contact.getName() + "\n" + contact.getEmailID());
 
         ImageView profile = (ImageView) view.findViewById(R.id.profile);
-        int res = context.getResources().getIdentifier(
-                "image_" + contact.getId(),
-                "drawable",
-                context.getPackageName()
-        );
 
-        if(res == 0){
+        if(!(contact.hasUri() && MainActivity.profileEditable)){
             profile.setImageResource(R.mipmap.ic_contact_default);
         }
 
         else{
-            profile.setImageResource(res);
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(),
+                        Uri.parse(contact.getUri()));
+                profile.setImageBitmap(bitmap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
         }
 
         return view;

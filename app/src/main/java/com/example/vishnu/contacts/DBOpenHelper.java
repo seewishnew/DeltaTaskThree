@@ -29,6 +29,7 @@ public class DBOpenHelper extends SQLiteOpenHelper{
     public static final String ADDRESS_COLUMN = "Address";
     public static final String BIRTHDAY_COLUMN = "Birthday";
     public static final String RELATIONSHIP_COLUMN = "Relationship";
+    public static final String URI_COLUMN = "URI";
 
 
     public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " ( " +
@@ -38,7 +39,8 @@ public class DBOpenHelper extends SQLiteOpenHelper{
             EMAIL_COLUMN + " TEXT, " +
             ADDRESS_COLUMN + " TEXT, " +
             BIRTHDAY_COLUMN + " TEXT, " +
-            RELATIONSHIP_COLUMN + " TEXT " + ")";
+            RELATIONSHIP_COLUMN + " TEXT, " +
+            URI_COLUMN + " TEXT " + ")";
 
     /*This is private because it is dangerous to use outside
     * It is called only by getInstance when instance has not been
