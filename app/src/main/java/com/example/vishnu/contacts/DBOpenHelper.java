@@ -12,12 +12,17 @@ public class DBOpenHelper extends SQLiteOpenHelper{
 
     private static final String LOG_TAG = "DBOpenHelper";
 
+    /*In order to make sure that there are never two instances
+    * of this class, only the reference of this instance is handed
+    * to all activities. This instance is initialized only if it never
+    * has been.*/
     private static DBOpenHelper instance;
 
-    public static final int VERSION = 3;
-    public static final String DATABASE_NAME = "contact_2.db";
+    public static final int VERSION = 1;
+    public static final String DATABASE_NAME = "contact.db";
 
     public static final String TABLE_NAME = "ContactsList";
+    public static final String ID_COLUMN = "ID";
     public static final String NAME_COLUMN = "Name";
     public static final String NUMBER_COLUMN = "PhoneNo";
     public static final String EMAIL_COLUMN = "emailID";
@@ -27,18 +32,23 @@ public class DBOpenHelper extends SQLiteOpenHelper{
 
 
     public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " ( " +
-            NUMBER_COLUMN + " TEXT PRIMARY KEY, " +
+            ID_COLUMN + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+            NUMBER_COLUMN + " TEXT, " +
             NAME_COLUMN + " TEXT, " +
             EMAIL_COLUMN + " TEXT, " +
             ADDRESS_COLUMN + " TEXT, " +
             BIRTHDAY_COLUMN + " TEXT, " +
             RELATIONSHIP_COLUMN + " TEXT " + ")";
 
-
+    /*This is private because it is dangerous to use outside
+    * It is called only by getInstance when instance has not been
+    * initialized*/
     private DBOpenHelper(Context context){
         super(context, DATABASE_NAME, null, VERSION);
     }
 
+    /*This is the method that is used outside, in order to get a handle
+     * of instance. */
     public static synchronized DBOpenHelper getInstance(Context context){
         if(instance==null)
         {
@@ -56,6 +66,14 @@ public class DBOpenHelper extends SQLiteOpenHelper{
 
     public void drop(SQLiteDatabase db){
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+    }
+
+    @Override
+    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+//        super.onDowngrade(db, oldVersion, newVersion);
+        drop(db);
+        onCreate(db);
+
     }
 
     @Override

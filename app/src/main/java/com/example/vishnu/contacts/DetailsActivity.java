@@ -9,8 +9,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -18,6 +20,7 @@ import android.widget.Toast;
 
 public class DetailsActivity extends AppCompatActivity {
 
+    public static final String LOG_TAG = "DetailsActivity";
     Contact contact;
 
     DataSource dataSource;
@@ -29,6 +32,8 @@ public class DetailsActivity extends AppCompatActivity {
     TextView birthday;
     TextView relationship;
 
+    private boolean search = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,10 +42,10 @@ public class DetailsActivity extends AppCompatActivity {
 //        setSupportActionBar(toolbar);
 
         Intent intent = getIntent();
-
+        search = intent.getBooleanExtra(SearchActivity.SEARCH, false);
         dataSource = new DataSource(this);
 
-        contact = dataSource.findSpecific(intent.getStringExtra(MainActivity.PHONE_NO));
+        contact = dataSource.findSpecific(intent.getLongExtra(MainActivity.ID, 0));
 
         getSupportActionBar().setTitle(contact.getName());
 
@@ -101,4 +106,32 @@ public class DetailsActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        Log.d(LOG_TAG, "In onOptionsItemSelected");
+
+        switch (item.getItemId()){
+            case android.R.id.home:
+                if(search){
+                    Log.d(LOG_TAG, "search is true");
+                    setResult(RESULT_OK);
+                    finish();
+                    return true;
+            }
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        if(search)
+        {
+            setResult(RESULT_OK);
+            finish();
+        }
+    }
 }

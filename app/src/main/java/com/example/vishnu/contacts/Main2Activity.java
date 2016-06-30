@@ -18,8 +18,16 @@ public class Main2Activity extends AppCompatActivity {
     public static final String RESULT = "RESULT";
     public static final String LOG_TAG = "Main2Activity";
 
+    /*This holds the value of relationship*/
     public String rel;
+
+    public Contact contact;
+
+
+    /*Whether the activity needs to update an
+    * existing element or create from scratch*/
     private boolean update = false;
+
     private DataSource dataSource;
 
 
@@ -29,16 +37,20 @@ public class Main2Activity extends AppCompatActivity {
     public EditText address;
     public EditText birthday;
     public Spinner relationship;
-    public Button button;
 
+    /*Button handle to change text to Update if
+    * update is true*/
+    public Button button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
 
+        //Find out whether this is an update or a create
         update = getIntent().getBooleanExtra(MainActivity.UPDATE, false);
 
+        //Assign all the editText handlers to the respective views
         {
 
             name = (EditText) findViewById(R.id.name);
@@ -59,16 +71,24 @@ public class Main2Activity extends AppCompatActivity {
         if(update){
             dataSource = new DataSource(this);
             dataSource.open();
-            Contact contact = dataSource.findSpecific(
-                    getIntent().getStringExtra(MainActivity.PHONE_NO)
+
+            final Contact contact = dataSource.findSpecific(
+                    getIntent().getLongExtra(MainActivity.ID, 0)
             );
 
+            Log.d("DataSource", "after intent id:" + contact.getId());
+
+            //set button text to update.
             button = (Button) findViewById(R.id.next);
             button.setText("Update");
 
+            /*Fill in the existing values in the editText fields*/
             name.setText(contact.getName());
             phone.setText(contact.getPhoneNo());
             email.setText(contact.getEmailID());
+
+            //Check whether these fields have been initialized before
+            //displaying them.
             if(contact.hasAddress()){
                 address.setVisibility(View.VISIBLE);
                 address.setText(contact.getAddress());
@@ -77,6 +97,7 @@ public class Main2Activity extends AppCompatActivity {
                 birthday.setVisibility(View.VISIBLE);
                 birthday.setText(contact.getBirthday());
             }
+
             if(contact.hasRelationship()){
                 relationship = (Spinner) findViewById(R.id.spinner);
                 relationship.setVisibility(View.VISIBLE);
@@ -87,6 +108,7 @@ public class Main2Activity extends AppCompatActivity {
 
                 relationship.setAdapter(adapter);
 
+                //Set the spinner to display whatever the stored value of relationship is
                 switch (contact.getRelationship()){
                     case "Family":
                         relationship.setSelection(1);
@@ -113,24 +135,34 @@ public class Main2Activity extends AppCompatActivity {
 
                 }
 
+                //update rel on the relationship status,
+                // because otherwise,
+                // it will cause null problem errors
+                //as the final button is the same
                 rel=contact.getRelationship();
             }
 
             dataSource.close();
+
+            this.contact = contact;
         }
 
     }
 
+    //Helper function to see if an edit text has any values entered
     public boolean isFieldEmpty(EditText editText){
         return (editText.getText().toString().length()==0) ? (true) : (false);
     }
 
     public void next(View view) {
 
-        Log.d(LOG_TAG, "next " + update);
 
+        //for setting error in case fields like name and phone no are null
         boolean flag = true;
-        Contact contact = new Contact();
+
+        if(!update)
+            contact = new Contact();
+
         DataSource dataSource = new DataSource(this);
         dataSource.open();
 
@@ -138,11 +170,10 @@ public class Main2Activity extends AppCompatActivity {
         if (isFieldEmpty(name)) {
             name.setError("Enter a name");
             flag = false;
-        } else
+        }
+
+        else
             contact.setName(name.getText().toString());
-
-        Log.d(LOG_TAG, "" + update);
-
 
         if (isFieldEmpty(phone)) {
             if (isFieldEmpty(email)) {
@@ -151,13 +182,20 @@ public class Main2Activity extends AppCompatActivity {
             }
 
             else {
+                //These scenarios are where phone number gets set to null
+                //So that causes issues with its being primary key
+                //Which means that another identifier is needed as primary key
+                Log.d(LOG_TAG, "phone no: " + phone.getText().toString() + ", length: " + phone.getText().toString().length());
+                contact.setPhoneNo(phone.getText().toString());
                 contact.setEmailID(email.getText().toString());
             }
         }
 
         else {
 
+            //If the contact needs to be created...
             if (!update) {
+                /*Although number is no longer the primary key, it still needs to be unique*/
                 if (dataSource.isNumberUnique(phone.getText().toString())) {
                     contact.setPhoneNo(phone.getText().toString());
 
@@ -169,18 +207,28 @@ public class Main2Activity extends AppCompatActivity {
                     flag = false;
                 }
 
-
             }
 
-            else{
-                contact.setPhoneNo(phone.getText().toString());
+            //Otherwise the contact needs to be updated.
+            else {
+                if(dataSource.isNumberUniqueUpdate(phone.getText().toString())) {
+                    contact.setPhoneNo(phone.getText().toString());
 
-                if(!isFieldEmpty(email))
-                    contact.setEmailID(email.getText().toString());
+                    if (!isFieldEmpty(email)) {
+                        contact.setEmailID(email.getText().toString());
+                    }
+                }
+                else
+                {
+                    phone.setError("Some other contact has same number");
+                    flag = false;
+                }
 
             }
+        }
 
-            if (flag) {
+
+        if (flag) {
 
                 if (address.getVisibility() == View.VISIBLE) {
                     if (!isFieldEmpty(address))
@@ -197,7 +245,7 @@ public class Main2Activity extends AppCompatActivity {
                 long id = 0L;
 
                 if (!update) {
-                    id = dataSource.create(contact);
+                    contact = dataSource.create(contact);
                 } else {
                     id = dataSource.update(contact);
                 }
@@ -207,16 +255,19 @@ public class Main2Activity extends AppCompatActivity {
 
                 setResult(RESULT_OK, intent);
 
+                dataSource.close();
+
                 finish();
 
-            } else {
+        }
+
+        else {
                 phone.requestFocus();
                 name.requestFocus();
             }
 
-
-        }
     }
+
 
     public void addField(View view) {
         Intent intent = new Intent(this, AddField.class);

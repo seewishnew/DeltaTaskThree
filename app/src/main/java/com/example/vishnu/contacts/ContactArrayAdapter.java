@@ -44,7 +44,7 @@ public class ContactArrayAdapter extends ArrayAdapter<Contact> {
 
         ImageView profile = (ImageView) view.findViewById(R.id.profile);
         int res = context.getResources().getIdentifier(
-                "image_" + contact.getPhoneNo(),
+                "image_" + contact.getId(),
                 "drawable",
                 context.getPackageName()
         );

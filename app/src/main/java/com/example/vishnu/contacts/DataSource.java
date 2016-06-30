@@ -23,7 +23,9 @@ public class DataSource {
     SQLiteOpenHelper dbHelper;
     static SQLiteDatabase database;
 
+    /*for finding all the elements in the database using findAll method*/
     public static final String all [] = {
+            DBOpenHelper.ID_COLUMN,
             DBOpenHelper.NAME_COLUMN,
             DBOpenHelper.NUMBER_COLUMN,
             DBOpenHelper.EMAIL_COLUMN,
@@ -32,6 +34,7 @@ public class DataSource {
             DBOpenHelper.RELATIONSHIP_COLUMN
     };
 
+    /*initialize dbhelper*/
     public DataSource(Context context)
     {
         dbHelper = DBOpenHelper.getInstance(context);
@@ -44,10 +47,10 @@ public class DataSource {
 
     public void close(){
         Log.d(LOG_TAG, "Database closed");
-        //dbHelper.close();
     }
 
-    public long create(Contact contact){
+    /*This function is called in order to create a new row*/
+    public Contact create(Contact contact){
 
         ContentValues values = new ContentValues();
 
@@ -58,16 +61,21 @@ public class DataSource {
         values.put(DBOpenHelper.BIRTHDAY_COLUMN, contact.getBirthday());
         values.put(DBOpenHelper.RELATIONSHIP_COLUMN, contact.getRelationship());
 
+        /*ID is primary key, autoincrement. insertID now gets the value of ID Column*/
         long insertID = database.insert(DBOpenHelper.TABLE_NAME, null, values);
 
+        contact.setId(insertID);
+
         //error returns -1
-        return insertID;
+        return contact;
     }
 
+    /*This function is called to update a row in a database*/
     public int update(Contact contact){
 
         ContentValues values = new ContentValues();
 
+        values.put(DBOpenHelper.ID_COLUMN, contact.getId());
         values.put(DBOpenHelper.NAME_COLUMN, contact.getName());
         values.put(DBOpenHelper.NUMBER_COLUMN, contact.getPhoneNo());
         values.put(DBOpenHelper.EMAIL_COLUMN, contact.getEmailID());
@@ -78,12 +86,19 @@ public class DataSource {
         int updateID = database.update(
                 DBOpenHelper.TABLE_NAME,
                 values,
-                DBOpenHelper.NUMBER_COLUMN + " = " + contact.getPhoneNo(),
-                null);
+                DBOpenHelper.ID_COLUMN + "=?",
+                new String[] {""+contact.getId()});
+
+        //returns no of columns affected
+        Log.d(LOG_TAG, "Columns affected: " + updateID +
+                "\nID: " + contact.getId() +
+        "\nNo of ID: " + database.rawQuery("SELECT count(*) FROM ContactsList " +
+                "WHERE ID = " + contact.getId(), null));
 
         return updateID;
     }
 
+    /*This function finds all entries*/
     public List<Contact> findAll(){
 
         Cursor cursor = database.query(DBOpenHelper.TABLE_NAME, all, null, null, null, null, null);
@@ -94,6 +109,8 @@ public class DataSource {
 
     }
 
+    /*This function is used to search for a pattern occurring in entries.
+    * This pattern is obtained from the search string entered by user*/
     public List<Contact> search(String searchString){
         String query = "SELECT * FROM " + DBOpenHelper.TABLE_NAME +
                 " WHERE " + DBOpenHelper.NAME_COLUMN + " LIKE '%" + searchString +
@@ -105,29 +122,35 @@ public class DataSource {
         return contacts;
     }
 
-    public boolean deleteContact(String phoneNo){
+    /*Function deletes the row, and then returns whether it was a successful delete or not*/
+    public boolean deleteContact(long ID){
 
-        database.delete(DBOpenHelper.TABLE_NAME, DBOpenHelper.NUMBER_COLUMN + " = " + phoneNo, null);
+        //returns number of rows affected
+        return database.delete(DBOpenHelper.TABLE_NAME, DBOpenHelper.ID_COLUMN + " = " + ID, null)>0;
 
-        boolean flag = isNumberUnique(phoneNo);
 
-        Log.d(LOG_TAG, "delete " + flag);
-
-        return flag;
     }
 
-    public Contact findSpecific(String phoneNo){
+    /*Finds a single entry */
+    public Contact findSpecific(long ID){
 
         String query = "SELECT * FROM " + DBOpenHelper.TABLE_NAME +
-                " WHERE " + DBOpenHelper.NUMBER_COLUMN + " = " +phoneNo;
+                " WHERE " + DBOpenHelper.ID_COLUMN + " = " + ID;
 
         Cursor cursor = database.rawQuery(query, null);
 
         List<Contact> contacts = getContacts(cursor);
 
+        if(cursor.getCount()==0)
+        {
+            return new Contact(0,null, null, null, null, null, null);
+        }
+
         return contacts.get(0);
     }
 
+    /*Converts a cursor containing the results of a query into
+    * a list of contacts.*/
     public static List<Contact> getContacts(Cursor cursor){
 
         List<Contact> contacts = new ArrayList<>();
@@ -136,6 +159,7 @@ public class DataSource {
             while(cursor.moveToNext())
             {
                 contacts.add(new Contact(
+                                cursor.getInt(cursor.getColumnIndex(DBOpenHelper.ID_COLUMN)),
                                 cursor.getString(cursor.getColumnIndex(DBOpenHelper.NAME_COLUMN)),
                                 cursor.getString(cursor.getColumnIndex(DBOpenHelper.NUMBER_COLUMN)),
                                 cursor.getString(cursor.getColumnIndex(DBOpenHelper.EMAIL_COLUMN)),
@@ -149,6 +173,7 @@ public class DataSource {
         return contacts;
     }
 
+    //Checks if the table is empty
     public boolean isEmpty(){
 
         String count = "SELECT count(*) FROM " + DBOpenHelper.TABLE_NAME;
@@ -166,6 +191,7 @@ public class DataSource {
 
     }
 
+    //Checks if phone number is unique
     public static boolean isNumberUnique(String number){
         String query = "SELECT * FROM " + DBOpenHelper.TABLE_NAME +
                 " WHERE " + DBOpenHelper.NUMBER_COLUMN + " = " + number;
@@ -174,7 +200,22 @@ public class DataSource {
 
         if(cursor.getCount()>0)
         {
-            Log.d(LOG_TAG, "" + getContacts(cursor).get(0).toString());
+            cursor.close();
+            return false;
+        }
+
+        cursor.close();
+        return true;
+    }
+
+    public static boolean isNumberUniqueUpdate(String number){
+        String query = "SELECT * FROM " + DBOpenHelper.TABLE_NAME +
+                " WHERE " + DBOpenHelper.NUMBER_COLUMN + " = " + number;
+
+        Cursor cursor = database.rawQuery(query, null);
+
+        if(cursor.getCount()>1)
+        {
             cursor.close();
             return false;
         }

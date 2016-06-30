@@ -6,6 +6,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -15,6 +16,8 @@ import java.util.List;
 
 public class SearchActivity extends AppCompatActivity {
 
+    public static final String SEARCH = "Search";
+    public static final int REQUEST_CODE = 3;
     ListView listView;
     DataSource dataSource;
 
@@ -46,8 +49,9 @@ public class SearchActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(SearchActivity.this, DetailsActivity.class);
-                intent.putExtra(MainActivity.PHONE_NO, contactList.get(position).getPhoneNo());
-                startActivity(intent);
+                intent.putExtra(MainActivity.ID, contactList.get(position).getId());
+                intent.putExtra(SEARCH, true);
+                startActivityForResult(intent, REQUEST_CODE);
             }
         });
 

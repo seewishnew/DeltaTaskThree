@@ -20,8 +20,6 @@ public class AddField extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_field);
 
-        Log.d(TAG, "Inside onCreate");
-
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 

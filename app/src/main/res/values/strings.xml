@@ -25,5 +25,5 @@
         <item>Delete</item>
     </string-array>
     <string name="title_activity_details">DetailsActivity</string>
-    <string name="title_activity_search">SearchActivity</string>
+    <string name="title_activity_search">Search Results</string>
 </resources>

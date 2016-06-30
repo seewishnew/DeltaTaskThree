@@ -10,12 +10,13 @@ import java.util.List;
  */
 public class Contact {
 
-    private String name;
+    private String name = null;
     private String phoneNo = null;
     private String emailID = null;
     private String address = null;
     private String birthday = null;
     private String relationship = null;
+    private long id;
 
     public Contact(){}
 
@@ -30,8 +31,9 @@ public class Contact {
         this.emailID = emailID;
     }
 
-    public Contact(String name, String phoneNo, String emailID,
+    public Contact(long id, String name, String phoneNo, String emailID,
                    String address, String birthday, String relationship){
+        this.id = id;
         this.name = name;
         this.phoneNo = phoneNo;
         this.emailID = emailID;
@@ -41,23 +43,23 @@ public class Contact {
     }
 
     public boolean hasPhoneNo(){
-        return (phoneNo==null)?false:true;
+        return (phoneNo==null || phoneNo==""||phoneNo.length()==0)?false:true;
     }
 
     public boolean hasEmailID(){
-        return (emailID==null)?false:true;
+        return (emailID==null || emailID == "" || emailID.length()==0)?false:true;
     }
 
     public boolean hasAddress(){
-        return (address==null)?false:true;
+        return (address==null || address=="" ||address.length()==0)?false:true;
     }
 
     public boolean hasBirthday(){
-        return  (birthday==null)?false:true;
+        return  (birthday==null || birthday == ""||birthday.length()==0)?false:true;
     }
 
     public boolean hasRelationship(){
-        return (relationship==null)?false:true;
+        return (relationship==null || relationship=="" ||relationship.length()==0)?false:true;
     }
 
     public String getName() {
@@ -69,6 +71,9 @@ public class Contact {
     }
 
     public String getPhoneNo() {
+        if(phoneNo == (""))
+            phoneNo=null;
+
         return phoneNo;
     }
 
@@ -77,6 +82,10 @@ public class Contact {
     }
 
     public String getEmailID() {
+
+        if(emailID == (""))
+            emailID=null;
+
         return emailID;
     }
 
@@ -85,6 +94,10 @@ public class Contact {
     }
 
     public String getAddress() {
+
+        if(address == (""))
+            address=null;
+
         return address;
     }
 
@@ -93,6 +106,9 @@ public class Contact {
     }
 
     public String getBirthday() {
+        if(birthday == "")
+            birthday=null;
+
         return birthday;
     }
 
@@ -112,5 +128,13 @@ public class Contact {
     @Override
     public String toString() {
         return (name + "\n" + phoneNo);
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 }
