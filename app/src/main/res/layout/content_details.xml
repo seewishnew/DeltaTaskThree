@@ -26,23 +26,68 @@
             android:clickable="true"
             />
 
-        <TextView
+        <ScrollView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Large Text"
-            android:id="@+id/tvNo"
-            android:visibility="gone"/>
+            android:id="@+id/scrollView" >
 
-        <TextView
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Large Text"
+                    android:id="@+id/tvNo"
+                    android:visibility="gone"
+                    android:longClickable="true"
+                    android:clickable="true"
+                    android:onClick="call"
+                    android:layout_gravity="center_vertical"
+                />
+
+                <!--<ImageButton-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:id="@+id/callButton"-->
+                    <!--android:visibility="gone"-->
+                    <!--android:src="@mipmap/ic_call"-->
+                    <!--android:onClick="call"-->
+                    <!--android:scaleType="fitXY"-->
+                    <!--android:backgroundTint="#00FF00"-->
+                    <!--android:backgroundTintMode="screen"-->
+                    <!--android:layout_weight="10"/>-->
+
+            </LinearLayout>
+
+                <Space
+                    android:layout_width="20dp"
+                    android:layout_height="20dp" />
+
+                <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="Large Text"
             android:id="@+id/tvEmail"
-            android:visibility="gone"/>
+            android:textColor="#0000FF"
+            android:visibility="gone"
+                    android:clickable="true"
+                    android:onClick="emailSomeone"/>
 
-        <TextView
+                <Space
+                    android:layout_width="20dp"
+                    android:layout_height="20dp" />
+
+                <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
@@ -50,21 +95,34 @@
             android:id="@+id/tvAddress"
             android:visibility="gone"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Medium Text"
-            android:id="@+id/tvBirthday"
-            android:visibility="gone"/>
+                <Space
+                    android:layout_width="20dp"
+                    android:layout_height="20dp" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Medium Text"
-            android:id="@+id/tvRelationship"
-            android:visibility="gone"/>
+                <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Medium Text"
+                android:id="@+id/tvBirthday"
+                android:visibility="gone"/>
+
+                <Space
+                    android:layout_width="20dp"
+                    android:layout_height="20dp" />
+
+                <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Medium Text"
+                android:id="@+id/tvRelationship"
+                android:visibility="gone"/>
+
+    </LinearLayout>
+
+        </ScrollView>
+
 
     </LinearLayout>
 

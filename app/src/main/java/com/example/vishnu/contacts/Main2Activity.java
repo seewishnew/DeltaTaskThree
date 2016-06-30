@@ -154,6 +154,45 @@ public class Main2Activity extends AppCompatActivity {
                 // it will cause null problem errors
                 //as the final button is the same
                 rel=contact.getRelationship();
+
+                relationship.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                        switch (position) {
+                            case 0:
+                                rel = null;
+                                break;
+                            case 1:
+                                rel = "Family";
+                                break;
+                            case 2:
+                                rel = "Friends";
+                                break;
+                            case 3:
+                                rel = "Co-worker";
+                                break;
+                            case 4:
+                                rel = "Classmate";
+                                break;
+                            case 5:
+                                rel = "Boss";
+                                break;
+                            default:
+                                rel = null;
+                                break;
+
+                        }
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+
+                        rel = null;
+
+                    }
+
+                });
             }
 
             dataSource.close();
@@ -277,11 +316,14 @@ public class Main2Activity extends AppCompatActivity {
                 if (!update) {
                     contact = dataSource.create(contact);
                 } else {
-                    id = dataSource.update(contact);
+                    dataSource.update(contact);
+                    id = contact.getId();
                 }
 
                 Intent intent = new Intent();
                 intent.putExtra(RESULT, id);
+
+            Log.d(DetailsActivity.LOG_TAG, contact.getRelationship());
 
                 setResult(RESULT_OK, intent);
 

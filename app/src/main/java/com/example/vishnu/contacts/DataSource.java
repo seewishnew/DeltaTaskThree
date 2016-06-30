@@ -86,6 +86,8 @@ public class DataSource {
         values.put(DBOpenHelper.RELATIONSHIP_COLUMN, contact.getRelationship());
         values.put(DBOpenHelper.URI_COLUMN, contact.getUri());
 
+        Log.d(DetailsActivity.LOG_TAG, "Has Uri: " + contact.hasUri() + " Uri: " +contact.getUri());
+
         int updateID = database.update(
                 DBOpenHelper.TABLE_NAME,
                 values,

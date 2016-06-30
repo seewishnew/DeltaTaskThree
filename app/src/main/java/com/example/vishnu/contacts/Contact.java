@@ -166,7 +166,7 @@ public class Contact {
 
     public void setUri(String uri){
         if(uri==null)
-            uri=null;
+            this.uri=null;
         else
             this.uri=Uri.parse(uri);
     }

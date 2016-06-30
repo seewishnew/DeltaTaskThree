@@ -1,7 +1,9 @@
 package com.example.vishnu.contacts;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
@@ -56,7 +58,7 @@ public class ContactArrayAdapter extends ArrayAdapter<Contact> {
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(),
                         Uri.parse(contact.getUri()));
-                profile.setImageBitmap(bitmap);
+                profile.setImageBitmap(scaleDown(bitmap, 40F, true));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -65,6 +67,19 @@ public class ContactArrayAdapter extends ArrayAdapter<Contact> {
 
         return view;
 
+    }
+
+    public static Bitmap scaleDown(Bitmap realImage, float maxImageSize, boolean filter){
+        float ratio = Math.min(
+                (float) maxImageSize/realImage.getWidth(),
+                (float) maxImageSize/realImage.getHeight()
+        );
+
+        int width = Math.round((float) ratio * realImage.getWidth());
+        int height = Math.round((float) ratio * realImage.getHeight());
+
+        Bitmap bitmap = Bitmap.createScaledBitmap(realImage, width, height, filter);
+        return bitmap;
     }
 }
 

@@ -1,8 +1,11 @@
 package com.example.vishnu.contacts;
 
+import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -10,6 +13,7 @@ import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutCompat;
@@ -21,6 +25,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,6 +36,7 @@ public class DetailsActivity extends AppCompatActivity {
 
     public static final String LOG_TAG = "DetailsActivity";
     public static final int PICK_IMAGE_REQUEST = 5;
+    public static final int REQUEST_CODE_EDIT_DETAILS = 8;
     Contact contact;
 
     DataSource dataSource;
@@ -108,10 +114,15 @@ public class DetailsActivity extends AppCompatActivity {
 
                                         startActivityForResult(Intent.createChooser(intent, "Choose from"),
                                                 PICK_IMAGE_REQUEST);
-                                    } else if (items[which].equals("Remove Photo")) {
+                                    }
+
+                                    else if (items[which].equals("Remove Photo")) {
                                         contact.setUri(null);
                                         dataSource.update(contact);
-                                    } else {
+                                        imageView.setImageResource(R.mipmap.ic_contact_default);
+                                    }
+
+                                    else {
                                         dialog.dismiss();
                                     }
                                 }
@@ -123,6 +134,7 @@ public class DetailsActivity extends AppCompatActivity {
                 }
             });
         }
+
         if(!(contact.hasUri() && MainActivity.profileEditable)){
             imageView.setImageResource(R.mipmap.ic_contact_default);
         }
@@ -141,11 +153,21 @@ public class DetailsActivity extends AppCompatActivity {
 
         }
 
+        refreshDetails();
+
+    }
+
+    private void refreshDetails() {
         if(contact.hasPhoneNo())
         {
             number = (TextView) findViewById(R.id.tvNo);
             number.setVisibility(View.VISIBLE);
             number.setText("Phone Number: " + contact.getPhoneNo());
+            if(MainActivity.callable){
+                number.setTextColor(Color.GREEN);
+//                ImageButton imageButton = (ImageButton) findViewById(R.id.callButton);
+//                imageButton.setVisibility(View.VISIBLE);
+            }
         }
 
         if(contact.hasEmailID()){
@@ -172,7 +194,6 @@ public class DetailsActivity extends AppCompatActivity {
             relationship.setVisibility(View.VISIBLE);
             relationship.setText("Relationship: " + contact.getRelationship());
         }
-
     }
 
     @Override
@@ -202,7 +223,7 @@ public class DetailsActivity extends AppCompatActivity {
                 Intent intent = new Intent(DetailsActivity.this, Main2Activity.class);
                 intent.putExtra(MainActivity.ID, contact.getId());
                 intent.putExtra(MainActivity.UPDATE, true);
-                startActivity(intent);
+                startActivityForResult(intent, REQUEST_CODE_EDIT_DETAILS);
 
                 break;
 
@@ -265,5 +286,38 @@ public class DetailsActivity extends AppCompatActivity {
                 dataSource.update(contact);
             }
         }
+
+        if(requestCode == REQUEST_CODE_EDIT_DETAILS && resultCode == RESULT_OK){
+            contact = dataSource.findSpecific(data.getLongExtra(Main2Activity.RESULT, 0));
+            Log.d(LOG_TAG, "refreshing details " + contact.getRelationship());
+            refreshDetails();
+        }
+    }
+
+    public void call(View view) {
+
+        if(MainActivity.callable || PackageManager.PERMISSION_GRANTED ==
+                ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.CALL_PHONE)
+                )
+        {
+            Intent intent = new Intent(Intent.ACTION_CALL);
+            intent.setData(Uri.parse("tel:" + contact.getPhoneNo()));
+            startActivity(intent);
+        }
+
+        else{
+            Toast.makeText(this, "Enable permission to make calls", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void emailSomeone(View view) {
+        Intent intent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+                "mailto", contact.getEmailID(), null
+        ));
+
+        startActivity(Intent.createChooser(intent, "Choose an app: "));
+
     }
 }

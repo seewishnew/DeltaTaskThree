@@ -42,10 +42,12 @@ public class MainActivity extends AppCompatActivity {
     public static final int MY_REQUEST_CODE_MANAGE_DOCUMENTS = 7;
 
     public static final String[] PERMISSIONS = {
-            Manifest.permission.READ_EXTERNAL_STORAGE
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.CALL_PHONE
     };
 
     public static boolean profileEditable = true;
+    public static boolean callable = true;
 
     ListView listView;
     DataSource dataSource;
@@ -72,8 +74,8 @@ public class MainActivity extends AppCompatActivity {
         int permissionCheck1 = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_EXTERNAL_STORAGE);
 
-        //int permissionCheck2 = ContextCompat.checkSelfPermission(this,
-//                Manifest.permission.MANAGE_DOCUMENTS);
+        int permissionCheck2 = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.CALL_PHONE);
 
         if(!(permissionCheck1 == PackageManager.PERMISSION_GRANTED)){
 
@@ -89,6 +91,18 @@ public class MainActivity extends AppCompatActivity {
         else
             profileEditable=true;
 
+        if(permissionCheck2!=PackageManager.PERMISSION_GRANTED){
+            callable=false;
+
+            ActivityCompat.requestPermissions(
+                    this,
+                    PERMISSIONS,
+                    MY_MULTIPLE_PERMISSION_REQUEST
+            );
+        }
+
+        else
+            callable=true;
 
         listView = (ListView) findViewById(R.id.listView);
         dataSource = new DataSource(this);
@@ -136,15 +150,28 @@ public class MainActivity extends AppCompatActivity {
                 if(grantResults.length>0
                         && grantResults[0]==PackageManager.PERMISSION_GRANTED
                         ){
-                    Log.d(LOG_TAG, "Multiple permissions granted!");
+                    Log.d(LOG_TAG, "Read ext storage permission granted!");
                         profileEditable=true;
 
                 }
 
                 else{
-                    Log.d(LOG_TAG, "Multiple permisions not granted");
+                    Log.d(LOG_TAG, "Read ext storage permission not granted");
                     profileEditable=false;
                 }
+
+                if(grantResults.length>1
+                        && grantResults[1] == PackageManager.PERMISSION_GRANTED){
+                    Log.d(LOG_TAG, "Call permission granted!");
+                    callable=true;
+                }
+
+                else{
+                    Log.d(LOG_TAG, "Call permission not granted!");
+                    callable=false;
+                }
+
+
                 break;
 
 //            case MY_REQUEST_CODE_MANAGE_DOCUMENTS:
