@@ -3,6 +3,8 @@ package com.example.vishnu.contacts;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.util.Log;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -30,6 +32,18 @@ public class Main2Activity extends AppCompatActivity {
 
     private DataSource dataSource;
 
+    private static final String blockedCharacterSet = "-(*+.,)#";
+//    private InputFilter filter = new InputFilter() {
+//        @Override
+//        public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+//
+//            if(source!=null && blockedCharacterSet.contains(("" + source)))
+//                return "";
+//
+//            return null;
+//        }
+//    };
+//
 
     public EditText name;
     public EditText phone;
@@ -185,45 +199,61 @@ public class Main2Activity extends AppCompatActivity {
                 //These scenarios are where phone number gets set to null
                 //So that causes issues with its being primary key
                 //Which means that another identifier is needed as primary key
-                Log.d(LOG_TAG, "phone no: " + phone.getText().toString() + ", length: " + phone.getText().toString().length());
-                contact.setPhoneNo(phone.getText().toString());
-                contact.setEmailID(email.getText().toString());
+                Log.d(LOG_TAG, "running checkPhoneNo");
+                if(checkPhoneNo(phone.getText().toString())) {
+                    contact.setPhoneNo(phone.getText().toString());
+                    contact.setEmailID(email.getText().toString());
+                }
+
+                else{
+                    phone.setError("Illegal character input");
+                    flag=false;
+                }
+
             }
         }
 
         else {
 
-            //If the contact needs to be created...
-            if (!update) {
+            Log.d(LOG_TAG, "running checkPhoneNo");
+            if(checkPhoneNo(phone.getText().toString())) {
+
+                //If the contact needs to be created...
+                if (!update) {
                 /*Although number is no longer the primary key, it still needs to be unique*/
-                if (dataSource.isNumberUnique(phone.getText().toString())) {
-                    contact.setPhoneNo(phone.getText().toString());
+                    Log.d(LOG_TAG, "isNumberUnique running");
+                    if (dataSource.isNumberUnique(phone.getText().toString())) {
+                        contact.setPhoneNo(phone.getText().toString());
 
-                    if (!isFieldEmpty(email))
-                        contact.setEmailID(email.getText().toString());
+                        if (!isFieldEmpty(email))
+                            contact.setEmailID(email.getText().toString());
 
-                } else {
-                    phone.setError("This number already exists");
-                    flag = false;
+                    } else {
+                        phone.setError("This number already exists");
+                        flag = false;
+                    }
+
                 }
 
+                //Otherwise the contact needs to be updated.
+                else {
+                    if (dataSource.isNumberUniqueUpdate(phone.getText().toString())) {
+                        contact.setPhoneNo(phone.getText().toString());
+
+                        if (!isFieldEmpty(email)) {
+                            contact.setEmailID(email.getText().toString());
+                        }
+                    } else {
+                        phone.setError("Some other contact has same number");
+                        flag = false;
+                    }
+
+                }
             }
 
-            //Otherwise the contact needs to be updated.
-            else {
-                if(dataSource.isNumberUniqueUpdate(phone.getText().toString())) {
-                    contact.setPhoneNo(phone.getText().toString());
-
-                    if (!isFieldEmpty(email)) {
-                        contact.setEmailID(email.getText().toString());
-                    }
-                }
-                else
-                {
-                    phone.setError("Some other contact has same number");
-                    flag = false;
-                }
-
+            else{
+                phone.setError("Illegal character input");
+                flag=false;
             }
         }
 
@@ -275,6 +305,22 @@ public class Main2Activity extends AppCompatActivity {
         startActivityForResult(intent, REQUEST_CODE);
     }
 
+    public boolean checkPhoneNo(String No){
+
+        boolean flag=true;
+
+        for(char ch:blockedCharacterSet.toCharArray()){
+            if(No.contains(""+ch))
+            {
+                Log.d(LOG_TAG, "Number contains: " + ch);
+                flag=false;
+                return flag;
+            }
+
+        }
+
+        return flag;
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

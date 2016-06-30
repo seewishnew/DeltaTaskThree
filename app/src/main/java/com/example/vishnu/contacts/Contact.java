@@ -1,6 +1,7 @@
 package com.example.vishnu.contacts;
 
 import android.database.Cursor;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +10,9 @@ import java.util.List;
  * Created by vishnu on 28/6/16.
  */
 public class Contact {
+
+    public static final String LOG_TAG = "Contact";
+
 
     private String name = null;
     private String phoneNo = null;
