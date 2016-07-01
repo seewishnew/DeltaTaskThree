@@ -36,10 +36,6 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -51,7 +47,6 @@
                     android:longClickable="true"
                     android:clickable="true"
                     android:onClick="call"
-                    android:layout_gravity="center_vertical"
                 />
 
                 <!--<ImageButton-->
@@ -66,7 +61,6 @@
                     <!--android:backgroundTintMode="screen"-->
                     <!--android:layout_weight="10"/>-->
 
-            </LinearLayout>
 
                 <Space
                     android:layout_width="20dp"

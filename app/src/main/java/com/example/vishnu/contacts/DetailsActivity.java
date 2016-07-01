@@ -163,8 +163,13 @@ public class DetailsActivity extends AppCompatActivity {
             number = (TextView) findViewById(R.id.tvNo);
             number.setVisibility(View.VISIBLE);
             number.setText("Phone Number: " + contact.getPhoneNo());
+            Log.d(LOG_TAG, "Phone Number: " + contact.getPhoneNo());
             if(MainActivity.callable){
                 number.setTextColor(Color.GREEN);
+                number.setText("Phone Number: " + contact.getPhoneNo());
+                Log.d(LOG_TAG, "Phone Number: " + number.getText().toString());
+
+
 //                ImageButton imageButton = (ImageButton) findViewById(R.id.callButton);
 //                imageButton.setVisibility(View.VISIBLE);
             }

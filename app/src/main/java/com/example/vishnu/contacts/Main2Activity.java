@@ -90,7 +90,7 @@ public class Main2Activity extends AppCompatActivity {
                     getIntent().getLongExtra(MainActivity.ID, 0)
             );
 
-            Log.d("DataSource", "after intent id:" + contact.getId());
+            //Log.d("DataSource", "after intent id:" + contact.getId());
 
             //set button text to update.
             button = (Button) findViewById(R.id.next);
@@ -238,7 +238,7 @@ public class Main2Activity extends AppCompatActivity {
                 //These scenarios are where phone number gets set to null
                 //So that causes issues with its being primary key
                 //Which means that another identifier is needed as primary key
-                Log.d(LOG_TAG, "running checkPhoneNo");
+               // Log.d(LOG_TAG, "running checkPhoneNo");
                 if(checkPhoneNo(phone.getText().toString())) {
                     contact.setPhoneNo(phone.getText().toString());
                     contact.setEmailID(email.getText().toString());
@@ -254,13 +254,13 @@ public class Main2Activity extends AppCompatActivity {
 
         else {
 
-            Log.d(LOG_TAG, "running checkPhoneNo");
+           // Log.d(LOG_TAG, "running checkPhoneNo");
             if(checkPhoneNo(phone.getText().toString())) {
 
                 //If the contact needs to be created...
                 if (!update) {
                 /*Although number is no longer the primary key, it still needs to be unique*/
-                    Log.d(LOG_TAG, "isNumberUnique running");
+                   // Log.d(LOG_TAG, "isNumberUnique running");
                     if (dataSource.isNumberUnique(phone.getText().toString())) {
                         contact.setPhoneNo(phone.getText().toString());
 
@@ -323,7 +323,7 @@ public class Main2Activity extends AppCompatActivity {
                 Intent intent = new Intent();
                 intent.putExtra(RESULT, id);
 
-            Log.d(DetailsActivity.LOG_TAG, contact.getRelationship());
+//            Log.d(DetailsActivity.LOG_TAG, "" + contact.getRelationship());
 
                 setResult(RESULT_OK, intent);
 
@@ -354,7 +354,7 @@ public class Main2Activity extends AppCompatActivity {
         for(char ch:blockedCharacterSet.toCharArray()){
             if(No.contains(""+ch))
             {
-                Log.d(LOG_TAG, "Number contains: " + ch);
+                //Log.d(LOG_TAG, "Number contains: " + ch);
                 flag=false;
                 return flag;
             }
